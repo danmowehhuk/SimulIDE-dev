@@ -52,6 +52,7 @@ INCLUDEPATH += $$PWD/src \
     $$PWD/src/gui/properties \
     $$PWD/src/gui/serial \
     $$PWD/src/gui/testing \
+    $$PWD/src/cli \
     $$PWD/src/simulator \
     $$PWD/src/simulator/elements \
     $$PWD/src/simulator/elements/active \

@@ -28,7 +28,8 @@
 #include "installer.h"
 #include "utils.h"
 
-MainWindow* MainWindow::m_pSelf = nullptr;
+MainWindow* MainWindow::m_pSelf    = nullptr;
+bool        MainWindow::s_headless = false;
 
 MainWindow::MainWindow()
           : QMainWindow()
@@ -141,8 +142,11 @@ void MainWindow::closeEvent( QCloseEvent *event )
 
 void MainWindow::readSettings()
 {
-    restoreGeometry( m_settings->value("geometry" ).toByteArray());
-    restoreState(    m_settings->value("windowState" ).toByteArray());
+    if( !s_headless )
+    {
+        restoreGeometry( m_settings->value("geometry" ).toByteArray());
+        restoreState(    m_settings->value("windowState" ).toByteArray());
+    }
     m_mainSplitter->restoreState( m_settings->value("Centralsplitter/geometry").toByteArray());
     CircuitWidget::self()->splitter()->restoreState( m_settings->value("Circsplitter/geometry").toByteArray());
 

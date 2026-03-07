@@ -1,0 +1,36 @@
+#!/bin/sh
+# Wrapper that runs SimulIDE in headless CLI mode.
+# The SimulIDE binary is located relative to this script, or falls back to
+# /Applications/simulide.app on macOS if running from an installed location.
+
+has_circuit=0
+for arg in "$@"; do
+    if [ "$arg" = "-circuit" ]; then has_circuit=1; break; fi
+done
+
+if [ $# -eq 0 ] || [ $has_circuit -eq 0 ]; then
+    echo "Usage: simulide-cli -circuit <file.sim2> [options]" >&2
+    echo "" >&2
+    echo "Options:" >&2
+    echo "  -firmware <file>      Load firmware into the first MCU" >&2
+    echo "  -out <file>           Write UART output to file (default: stdout)" >&2
+    echo "  -stop-signal <str>    Exit 0 when string appears in UART output" >&2
+    echo "  -idle-timeout <ms>    Exit 1 if no UART output for N ms (default: 5000)" >&2
+    exit 1
+fi
+
+# Resolve the binary: check next to this script first, then common install paths.
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+if [ -x "$SCRIPT_DIR/simulide" ]; then
+    BINARY="$SCRIPT_DIR/simulide"
+elif [ -x "/Applications/simulide.app/Contents/MacOS/simulide" ]; then
+    BINARY="/Applications/simulide.app/Contents/MacOS/simulide"
+elif command -v simulide >/dev/null 2>&1; then
+    BINARY="simulide"
+else
+    echo "ERROR: SimulIDE binary not found" >&2
+    exit 1
+fi
+
+exec "$BINARY" -nogui "$@"

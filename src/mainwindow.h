@@ -88,6 +88,7 @@ class MainWindow : public QMainWindow
         Installer* installer() { return m_installer; }
 
  static MainWindow* self() { return m_pSelf; }
+ static void setHeadless( bool h ) { s_headless = h; }
 
     protected:
         void closeEvent( QCloseEvent* event );
@@ -138,4 +139,5 @@ class MainWindow : public QMainWindow
         QSplitter*  m_mainSplitter;
 
  static MainWindow* m_pSelf;
+ static bool        s_headless;
 };

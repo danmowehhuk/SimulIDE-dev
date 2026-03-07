@@ -12,9 +12,14 @@
 #include "circuitwidget.h"
 #include "editorwindow.h"
 #include "batchtest.h"
+#include "headlesscli.h"
+
+static bool g_headless = false;
 
 void myMessageOutput( QtMsgType type, const QMessageLogContext &context, const QString &msg )
 {
+    if( g_headless && type < QtCriticalMsg ) return;
+
     QByteArray localMsg = msg.toLocal8Bit();
     const char* file     = context.file ? context.file : "";
     const char* function = context.function ? context.function : "";
@@ -58,6 +63,15 @@ int main( int argc, char *argv[] )
     }
 #endif
 
+    g_headless = HeadlessCli::isHeadless( argc, argv );
+
+#ifdef Q_OS_MAC
+    // Suppress the Dock icon and menu bar before QApplication is constructed.
+    // Without this, macOS allocates both even when we immediately hide the window.
+    // AA_MacPluginApplication is a macOS-only Qt attribute; the guard is required.
+    if( g_headless ) QCoreApplication::setAttribute( Qt::AA_MacPluginApplication );
+#endif
+
     QApplication app( argc, argv );
 
     QSettings settings( QStandardPaths::standardLocations( QStandardPaths::AppDataLocation).first()+"/simulide.ini",  QSettings::IniFormat, 0l );
@@ -79,6 +93,8 @@ int main( int argc, char *argv[] )
 
     app.setApplicationVersion( APP_VERSION );
 
+    if( g_headless ) MainWindow::setHeadless( true );
+
     MainWindow window;
     window.setLoc( locale );
     window.show();
@@ -90,6 +106,10 @@ int main( int argc, char *argv[] )
         if( arg == "-nogui")
         {
             window.hideGui();
+            window.hide();
+            if( !HeadlessCli::parseArgs( argc, argv ) ) return 1;
+            QTimer::singleShot( 500, [](){ HeadlessCli::run(); } );
+            break;
         }
         else if( arg == "-test" )
         {
@@ -127,4 +147,3 @@ int main( int argc, char *argv[] )
 
     return app.exec();
 }
-

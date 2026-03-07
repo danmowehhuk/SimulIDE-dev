@@ -7,6 +7,7 @@
 #include "mcuinterrupts.h"
 #include "iopin.h"
 #include "simulator.h"
+#include "usartcapture.h"
 
 UartTx::UartTx( UsartModule* usart, eMcu* mcu, QString  name )
       : UartTR( usart, mcu, name )
@@ -39,6 +40,7 @@ void UartTx::runEvent()
     {
         m_state = usartIDLE;
         m_ioPin->setOutState( true );
+        UsartCapture::captureByteReceived( m_data );
         m_usart->frameSent( m_data );
 }   }
 
