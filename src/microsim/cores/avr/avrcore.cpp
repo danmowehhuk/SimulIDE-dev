@@ -543,7 +543,7 @@ void AvrCore::runStep()
                                 qDebug() << "ERROR: AVR Invalid instruction: ELPM with no RAMPZ";
                                 break;
                             }
-                            uint16_t z = m_dataMem[R_ZL] |( m_dataMem[R_ZH] << 8) | (*RAMPZ << 16);
+                            uint32_t z = m_dataMem[R_ZL] |( m_dataMem[R_ZH] << 8) | (*RAMPZ << 16);
                             get_d5( instruction );
                             int op = instruction & 1;
                             uint16_t prgData = m_progMem[z/2];
